@@ -24,30 +24,30 @@ def register(
     user: schemas.UserCreate,
     db: Session = Depends(get_db)
 ):
-
-    # Check username
-    existing_username = db.query(User).filter(
-        User.username == user.username
-    ).first()
-
-    if existing_username:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already exists"
-        )
-
-    # Check email
-    existing_email = db.query(User).filter(
-        User.email == user.email
-    ).first()
-
-    if existing_email:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already exists"
-        )
-
     try:
+
+        # Check username
+        existing_username = db.query(User).filter(
+            User.username == user.username
+        ).first()
+
+        if existing_username:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already exists"
+            )
+
+        # Check email
+        existing_email = db.query(User).filter(
+            User.email == user.email
+        ).first()
+
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already exists"
+            )
+
         # Hash password
         hashed_password = Hash.bcrypt(user.password)
 
@@ -76,26 +76,26 @@ def login(
     request: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-
-    # Find user by email
-    db_user = db.query(User).filter(
-        User.email == request.username
-    ).first()
-
-    if not db_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid Email"
-        )
-
-    # Verify password
-    if not Hash.verify(request.password, db_user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Password"
-        )
-
     try:
+
+        # Find user by email
+        db_user = db.query(User).filter(
+            User.email == request.username
+        ).first()
+
+        if not db_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invalid Email"
+            )
+
+        # Verify password
+        if not Hash.verify(request.password, db_user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Password"
+            )
+
         # Create JWT Token
         access_token = create_access_token(
             data={"user_id": db_user.id},
@@ -107,5 +107,6 @@ def login(
             "token_type": "bearer"
         }
 
-    except Exception:
+    except SQLAlchemyError:
+        db.rollback()
         database_exception()

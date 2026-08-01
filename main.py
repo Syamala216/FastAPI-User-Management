@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 
 import models
-
 from database import engine, Base
 
 from auth import router as auth_router
@@ -14,6 +15,24 @@ app = FastAPI(
     title="Task Management API"
 )
 
+@app.exception_handler(SQLAlchemyError)
+async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Database Error"
+        }
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Internal Server Error"
+        }
+    )
+
 app.include_router(auth_router)
 app.include_router(task_router)
 app.include_router(user_router)
@@ -21,4 +40,6 @@ app.include_router(user_router)
 
 @app.get("/")
 def home():
-    return {"message": "Welcome to Task Management API"}
+    return {
+        "message": "Welcome to Task Management API"
+    }

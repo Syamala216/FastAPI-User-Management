@@ -51,12 +51,15 @@ def get_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    try:
+        tasks = db.query(Task).filter(
+            Task.owner_id == current_user.id
+        ).all()
 
-    tasks = db.query(Task).filter(
-        Task.owner_id == current_user.id
-    ).all()
+        return tasks
 
-    return tasks
+    except SQLAlchemyError:
+        database_exception()
 
 
 # ---------------- GET TASK BY ID ---------------- #
@@ -67,19 +70,22 @@ def get_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    try:
+        task = db.query(Task).filter(
+            Task.id == task_id,
+            Task.owner_id == current_user.id
+        ).first()
 
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.owner_id == current_user.id
-    ).first()
+        if task is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Task not found"
+            )
 
-    if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
-        )
+        return task
 
-    return task
+    except SQLAlchemyError:
+        database_exception()
 
 
 # ---------------- UPDATE TASK ---------------- #
@@ -91,19 +97,18 @@ def update_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.owner_id == current_user.id
-    ).first()
-
-    if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
-        )
-
     try:
+        task = db.query(Task).filter(
+            Task.id == task_id,
+            Task.owner_id == current_user.id
+        ).first()
+
+        if task is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Task not found"
+            )
+
         task.title = updated_task.title
         task.description = updated_task.description
         task.completed = updated_task.completed
@@ -126,19 +131,18 @@ def delete_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.owner_id == current_user.id
-    ).first()
-
-    if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found"
-        )
-
     try:
+        task = db.query(Task).filter(
+            Task.id == task_id,
+            Task.owner_id == current_user.id
+        ).first()
+
+        if task is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Task not found"
+            )
+
         db.delete(task)
         db.commit()
 

@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import SQLAlchemyError
 
 from models.user import User
 import schemas
 from oauth2 import get_current_user
+from exceptions import database_exception
 
 router = APIRouter(
     prefix="/users",
@@ -12,7 +14,10 @@ router = APIRouter(
 
 @router.get("/me", response_model=schemas.UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
-    """
-    Get currently logged-in user.
-    """
-    return current_user
+
+
+    try:
+        return current_user
+
+    except SQLAlchemyError:
+        database_exception()
