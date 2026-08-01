@@ -20,7 +20,6 @@ SessionLocal = sessionmaker(
 # Base class for models
 Base = declarative_base()
 
-
 # Database Dependency
 def get_db():
     db = SessionLocal()

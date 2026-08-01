@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-import models
+from models.user import User
 import schemas
 from oauth2 import get_current_user
 
@@ -11,7 +11,7 @@ router = APIRouter(
 
 
 @router.get("/me", response_model=schemas.UserResponse)
-def get_me(current_user: models.User = Depends(get_current_user)):
+def get_me(current_user: User = Depends(get_current_user)):
     """
     Get currently logged-in user.
     """

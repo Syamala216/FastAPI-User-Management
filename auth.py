@@ -3,26 +3,31 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
-import models
+from models.user import User
 import schemas
 from database import get_db
 from hashing import Hash
 from oauth2 import create_access_token
+from exceptions import database_exception
 
 router = APIRouter(
     tags=["Authentication"]
 )
 
 
-
+# ---------------- REGISTER ---------------- #
 
 @router.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: schemas.UserCreate,
+    db: Session = Depends(get_db)
+):
 
-
-    existing_username = db.query(models.User).filter(
-        models.User.username == user.username
+    # Check username
+    existing_username = db.query(User).filter(
+        User.username == user.username
     ).first()
 
     if existing_username:
@@ -31,9 +36,9 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
             detail="Username already exists"
         )
 
-
-    existing_email = db.query(models.User).filter(
-        models.User.email == user.email
+    # Check email
+    existing_email = db.query(User).filter(
+        User.email == user.email
     ).first()
 
     if existing_email:
@@ -42,23 +47,29 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
             detail="Email already exists"
         )
 
+    try:
+        # Hash password
+        hashed_password = Hash.bcrypt(user.password)
 
-    hashed_password = Hash.bcrypt(user.password)
+        # Create user
+        new_user = User(
+            username=user.username,
+            email=user.email,
+            password=hashed_password
+        )
 
-    new_user = models.User(
-        username=user.username,
-        email=user.email,
-        password=hashed_password
-    )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+        return new_user
 
-    return new_user
+    except SQLAlchemyError:
+        db.rollback()
+        database_exception()
 
 
-
+# ---------------- LOGIN ---------------- #
 
 @router.post("/login", response_model=schemas.Token)
 def login(
@@ -67,8 +78,8 @@ def login(
 ):
 
     # Find user by email
-    db_user = db.query(models.User).filter(
-        models.User.email == request.username
+    db_user = db.query(User).filter(
+        User.email == request.username
     ).first()
 
     if not db_user:
@@ -77,19 +88,24 @@ def login(
             detail="Invalid Email"
         )
 
+    # Verify password
     if not Hash.verify(request.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Password"
         )
 
+    try:
+        # Create JWT Token
+        access_token = create_access_token(
+            data={"user_id": db_user.id},
+            expires_delta=timedelta(minutes=30)
+        )
 
-    access_token = create_access_token(
-        data={"user_id": db_user.id},
-        expires_delta=timedelta(minutes=30)
-    )
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    except Exception:
+        database_exception()

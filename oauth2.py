@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from database import get_db
-import models
+from models.user import User
 
 # Secret key (change this in production)
 SECRET_KEY = "mysecretkey123456789"
@@ -66,14 +66,14 @@ def verify_access_token(token: str):
 
 
 def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
 ):
 
     user_id = verify_access_token(token)
 
-    user = db.query(models.User).filter(
-        models.User.id == user_id
+    user = db.query(User).filter(
+        User.id == user_id
     ).first()
 
     if user is None:

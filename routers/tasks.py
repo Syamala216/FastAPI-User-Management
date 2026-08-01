@@ -2,11 +2,14 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
-import models
+from models.user import User
+from models.task import Task
 import schemas
 from database import get_db
 from oauth2 import get_current_user
+from exceptions import database_exception
 
 router = APIRouter(
     prefix="/tasks",
@@ -20,21 +23,25 @@ router = APIRouter(
 def create_task(
     task: schemas.TaskCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
+    try:
+        new_task = Task(
+            title=task.title,
+            description=task.description,
+            completed=task.completed,
+            owner_id=current_user.id
+        )
 
-    new_task = models.Task(
-        title=task.title,
-        description=task.description,
-        completed=task.completed,
-        owner_id=current_user.id
-    )
+        db.add(new_task)
+        db.commit()
+        db.refresh(new_task)
 
-    db.add(new_task)
-    db.commit()
-    db.refresh(new_task)
+        return new_task
 
-    return new_task
+    except SQLAlchemyError:
+        db.rollback()
+        database_exception()
 
 
 # ---------------- GET ALL TASKS ---------------- #
@@ -42,11 +49,11 @@ def create_task(
 @router.get("/", response_model=List[schemas.TaskResponse])
 def get_tasks(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
 
-    tasks = db.query(models.Task).filter(
-        models.Task.owner_id == current_user.id
+    tasks = db.query(Task).filter(
+        Task.owner_id == current_user.id
     ).all()
 
     return tasks
@@ -58,12 +65,12 @@ def get_tasks(
 def get_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
 
-    task = db.query(models.Task).filter(
-        models.Task.id == task_id,
-        models.Task.owner_id == current_user.id
+    task = db.query(Task).filter(
+        Task.id == task_id,
+        Task.owner_id == current_user.id
     ).first()
 
     if task is None:
@@ -82,12 +89,12 @@ def update_task(
     task_id: int,
     updated_task: schemas.TaskCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
 
-    task = db.query(models.Task).filter(
-        models.Task.id == task_id,
-        models.Task.owner_id == current_user.id
+    task = db.query(Task).filter(
+        Task.id == task_id,
+        Task.owner_id == current_user.id
     ).first()
 
     if task is None:
@@ -96,14 +103,19 @@ def update_task(
             detail="Task not found"
         )
 
-    task.title = updated_task.title
-    task.description = updated_task.description
-    task.completed = updated_task.completed
+    try:
+        task.title = updated_task.title
+        task.description = updated_task.description
+        task.completed = updated_task.completed
 
-    db.commit()
-    db.refresh(task)
+        db.commit()
+        db.refresh(task)
 
-    return task
+        return task
+
+    except SQLAlchemyError:
+        db.rollback()
+        database_exception()
 
 
 # ---------------- DELETE TASK ---------------- #
@@ -112,12 +124,12 @@ def update_task(
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
 
-    task = db.query(models.Task).filter(
-        models.Task.id == task_id,
-        models.Task.owner_id == current_user.id
+    task = db.query(Task).filter(
+        Task.id == task_id,
+        Task.owner_id == current_user.id
     ).first()
 
     if task is None:
@@ -126,9 +138,14 @@ def delete_task(
             detail="Task not found"
         )
 
-    db.delete(task)
-    db.commit()
+    try:
+        db.delete(task)
+        db.commit()
 
-    return {
-        "message": "Task deleted successfully"
-    }
+        return {
+            "message": "Task deleted successfully"
+        }
+
+    except SQLAlchemyError:
+        db.rollback()
+        database_exception()
