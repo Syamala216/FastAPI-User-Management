@@ -15,6 +15,8 @@ class UserCreate(BaseModel):
 
     password: str
 
+    is_admin: bool = False
+
     @field_validator("password")
     @classmethod
     def validate_password(cls, value):
@@ -59,6 +61,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
+    is_admin: bool
 
     class Config:
         from_attributes = True
@@ -81,3 +84,23 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_id: Optional[int] = None
+
+class ProductCreate(BaseModel):
+    name: str
+    description:Optional[str]
+    price: float
+    stock: int
+    category: str
+
+
+class ProductResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str]
+    price: float
+    stock: int
+    category: str
+    owner_id: int
+
+    class Config:
+        from_attributes = True

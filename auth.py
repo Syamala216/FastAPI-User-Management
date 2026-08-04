@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-# ---------------- REGISTER ---------------- #
+# REGISTER
 
 @router.post("/register", response_model=schemas.UserResponse)
 def register(
@@ -55,7 +55,8 @@ def register(
         new_user = User(
             username=user.username,
             email=user.email,
-            password=hashed_password
+            password=hashed_password,
+            is_admin=user.is_admin
         )
 
         db.add(new_user)
@@ -69,7 +70,7 @@ def register(
         database_exception()
 
 
-# ---------------- LOGIN ---------------- #
+# LOGIN
 
 @router.post("/login", response_model=schemas.Token)
 def login(
