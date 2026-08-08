@@ -104,3 +104,56 @@ class ProductResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class WishlistCreate(BaseModel):
+    product_id: int
+
+
+class ProductWishlist(BaseModel):
+    id: int
+    name: str
+    description: Optional[str]
+    price: float
+    stock: int
+    category: str
+
+    class Config:
+        from_attributes = True
+
+
+class WishlistResponse(BaseModel):
+    id: int
+    user_id: int
+    product: ProductWishlist
+
+    class Config:
+        from_attributes = True
+
+class CartCreate(BaseModel):
+    product_id: int
+    quantity: int = 1
+
+
+class CartResponse(BaseModel):
+    id: int
+    user_id: int
+    product_name: str
+    quantity: int
+
+class TransactionCreate(BaseModel):
+    product_id: int
+    quantity: int
+    payment_status: str
+
+
+class TransactionResponse(BaseModel):
+    id: int
+    user_id: int
+    product_id: int
+    quantity: int
+    total_amount: float
+    payment_status: str
+
+    class Config:
+        from_attributes = True

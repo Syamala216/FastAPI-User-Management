@@ -9,6 +9,9 @@ from auth import router as auth_router
 from routers.tasks import router as task_router
 from routers.users import router as user_router
 from routers.products import router as product_router
+from routers.wishlist import router as wishlist_router
+from routers.cart import router as cart_router
+from routers.transactions import router as transaction_router
 
 #Base.metadata.create_all(bind=engine)
 
@@ -43,6 +46,10 @@ app.include_router(auth_router)
 app.include_router(task_router)
 app.include_router(user_router)
 app.include_router(product_router)
+app.include_router(wishlist_router)
+
+app.include_router(cart_router)
+app.include_router(transaction_router)
 
 
 @app.get("/")
