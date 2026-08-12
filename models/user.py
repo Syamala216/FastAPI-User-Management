@@ -12,4 +12,5 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     tasks = relationship("Task", back_populates="owner")
+
     is_admin = Column(Boolean, default=False)

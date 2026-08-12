@@ -7,9 +7,13 @@ from database import get_db
 from models.user import User
 from models.product import Product
 from models.transaction import Transaction
-from models.cart import Cart
 from oauth2 import get_current_user
 from exceptions import database_exception
+
+
+# Reusable dependencies
+db_dependency = Depends(get_db)
+user_dependency = Depends(get_current_user)
 
 
 router = APIRouter(
@@ -18,6 +22,7 @@ router = APIRouter(
 )
 
 
+# CREATE TRANSACTION
 @router.post(
     "/",
     response_model=schemas.TransactionResponse,
@@ -25,8 +30,8 @@ router = APIRouter(
 )
 def create_transaction(
     transaction: schemas.TransactionCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
 
@@ -91,6 +96,28 @@ def create_transaction(
         db.refresh(new_transaction)
 
         return new_transaction
+
+    except SQLAlchemyError:
+        db.rollback()
+        database_exception()
+
+
+# GET TRANSACTIONS
+@router.get(
+    "/",
+    response_model=list[schemas.TransactionResponse]
+)
+def get_transactions(
+    db: Session = db_dependency,
+    current_user: User = user_dependency
+):
+    try:
+
+        transactions = db.query(Transaction).filter(
+            Transaction.user_id == current_user.id
+        ).all()
+
+        return transactions
 
     except SQLAlchemyError:
         db.rollback()

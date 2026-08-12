@@ -11,12 +11,18 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
+
+db_dependency = Depends(get_db)
+user_dependency = Depends(get_current_user)
+
+
 router = APIRouter(
     prefix="/cart",
     tags=["Cart"]
 )
 
 
+# ADD TO CART
 @router.post(
     "/",
     response_model=schemas.CartResponse,
@@ -24,11 +30,12 @@ router = APIRouter(
 )
 def add_to_cart(
     cart: schemas.CartCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
 
+        # Find product
         product = db.query(Product).filter(
             Product.id == cart.product_id
         ).first()
@@ -39,7 +46,7 @@ def add_to_cart(
                 detail="Product not found"
             )
 
-        # User cannot add their own product
+        # User cannot add own product
         if product.owner_id == current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -53,13 +60,14 @@ def add_to_cart(
                 detail="Quantity must be greater than 0"
             )
 
-        # Check requested quantity
+        # Stock validation
         if cart.quantity > product.stock:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Requested quantity is not available"
             )
 
+        # Check existing cart item
         existing = db.query(Cart).filter(
             Cart.user_id == current_user.id,
             Cart.product_id == cart.product_id
@@ -67,7 +75,6 @@ def add_to_cart(
 
         if existing:
 
-            # Check total quantity
             if existing.quantity + cart.quantity > product.stock:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -86,6 +93,7 @@ def add_to_cart(
                 "quantity": existing.quantity
             }
 
+        # Create new cart item
         new_cart = Cart(
             user_id=current_user.id,
             product_id=cart.product_id,
@@ -108,13 +116,14 @@ def add_to_cart(
         database_exception()
 
 
+# GET CART
 @router.get(
     "/",
     response_model=list[schemas.CartResponse]
 )
 def get_cart(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
 
@@ -125,10 +134,19 @@ def get_cart(
         result = []
 
         for item in cart_items:
+
+            # Get product separately using product_id
+            product = db.query(Product).filter(
+                Product.id == item.product_id
+            ).first()
+
+            if product is None:
+                continue
+
             result.append({
                 "id": item.id,
                 "user_id": item.user_id,
-                "product_name": item.product.name,
+                "product_name": product.name,
                 "quantity": item.quantity
             })
 
@@ -139,14 +157,15 @@ def get_cart(
         database_exception()
 
 
+# DELETE CART ITEM
 @router.delete(
     "/{cart_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 def remove_from_cart(
     cart_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
 

@@ -19,6 +19,3 @@ class Transaction(Base):
 
     payment_status = Column(String(20), nullable=False)
 
-    user = relationship("User")
-
-    product = relationship("Product")

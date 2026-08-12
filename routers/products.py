@@ -11,13 +11,19 @@ from oauth2 import get_current_user
 import schemas
 from exceptions import database_exception
 
+
+
+db_dependency = Depends(get_db)
+user_dependency = Depends(get_current_user)
+
+
 router = APIRouter(
     prefix="/products",
     tags=["Products"]
 )
 
 
-# Create Product
+# CREATE PRODUCT
 @router.post(
     "/",
     response_model=schemas.ProductResponse,
@@ -25,8 +31,8 @@ router = APIRouter(
 )
 def create_product(
     product: schemas.ProductCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
         new_product = Product(
@@ -44,72 +50,88 @@ def create_product(
 
         return new_product
 
-
     except SQLAlchemyError as e:
         db.rollback()
         print(e)
         database_exception()
 
-# Get All Products
-@router.get("/", response_model=List[schemas.ProductResponse])
+
+# GET ALL PRODUCTS
+@router.get(
+    "/",
+    response_model=List[schemas.ProductResponse]
+)
 def get_products(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
         products = db.query(Product).all()
+
         return products
 
     except SQLAlchemyError:
+        db.rollback()
         database_exception()
 
 
-# Get Product By ID
-@router.get("/{product_id}", response_model=schemas.ProductResponse)
+# GET PRODUCT BY ID
+@router.get(
+    "/{product_id}",
+    response_model=schemas.ProductResponse
+)
 def get_product(
     product_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
-    product = db.query(Product).filter(
-        Product.id == product_id
-    ).first()
+    try:
+        product = db.query(Product).filter(
+            Product.id == product_id
+        ).first()
 
-    if product is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found"
-        )
+        if product is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found"
+            )
 
-    return product
+        return product
+
+    except SQLAlchemyError:
+        db.rollback()
+        database_exception()
 
 
-# Update Product
-@router.put("/{product_id}", response_model=schemas.ProductResponse)
+# UPDATE PRODUCT
+@router.put(
+    "/{product_id}",
+    response_model=schemas.ProductResponse
+)
 def update_product(
     product_id: int,
     updated_product: schemas.ProductCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
-    product = db.query(Product).filter(
-        Product.id == product_id
-    ).first()
-
-    if product is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found"
-        )
-
-    # Allow only the owner to update
-    if product.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not authorized to update this product"
-        )
-
     try:
+        product = db.query(Product).filter(
+            Product.id == product_id
+        ).first()
+
+        if product is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found"
+            )
+
+        # Only owner can update
+        if product.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not authorized to update this product"
+            )
+
         product.name = updated_product.name
         product.description = updated_product.description
         product.price = updated_product.price
@@ -126,31 +148,34 @@ def update_product(
         database_exception()
 
 
-# Delete Product
-@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+# DELETE PRODUCT
+@router.delete(
+    "/{product_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
 def delete_product(
     product_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
-    product = db.query(Product).filter(
-        Product.id == product_id
-    ).first()
-
-    if product is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not found"
-        )
-
-    # Allow only the owner to delete
-    if product.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not authorized to delete this product"
-        )
-
     try:
+        product = db.query(Product).filter(
+            Product.id == product_id
+        ).first()
+
+        if product is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found"
+            )
+
+        # Only owner can delete
+        if product.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not authorized to delete this product"
+            )
+
         db.delete(product)
         db.commit()
 

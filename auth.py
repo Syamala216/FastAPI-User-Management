@@ -78,7 +78,6 @@ def login(
     db: Session = Depends(get_db)
 ):
     try:
-
         # Find user by email
         db_user = db.query(User).filter(
             User.email == request.username
@@ -108,6 +107,10 @@ def login(
             "token_type": "bearer"
         }
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        print("LOGIN DATABASE ERROR:", e)
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

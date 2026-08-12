@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship
 
 from database import Base
 
@@ -20,10 +19,3 @@ class Product(Base):
     category = Column(String)
 
     owner_id = Column(Integer, ForeignKey("users.id"))
-
-    owner = relationship("User")
-
-    wishlist = relationship(
-        "Wishlist",
-        back_populates="product"
-    )

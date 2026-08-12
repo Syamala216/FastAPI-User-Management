@@ -11,21 +11,31 @@ from database import get_db
 from oauth2 import get_current_user
 from exceptions import database_exception
 
+
+# Reusable dependencies
+db_dependency = Depends(get_db)
+user_dependency = Depends(get_current_user)
+
+
 router = APIRouter(
     prefix="/tasks",
     tags=["Tasks"]
 )
 
 
-# ---------------- CREATE TASK ---------------- #
-
-@router.post("/", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
+# CREATE TASK
+@router.post(
+    "/",
+    response_model=schemas.TaskResponse,
+    status_code=status.HTTP_201_CREATED
+)
 def create_task(
     task: schemas.TaskCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
+
         new_task = Task(
             title=task.title,
             description=task.description,
@@ -44,14 +54,17 @@ def create_task(
         database_exception()
 
 
-# ---------------- GET ALL TASKS ---------------- #
-
-@router.get("/", response_model=List[schemas.TaskResponse])
+# GET ALL TASKS
+@router.get(
+    "/",
+    response_model=List[schemas.TaskResponse]
+)
 def get_tasks(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
+
         tasks = db.query(Task).filter(
             Task.owner_id == current_user.id
         ).all()
@@ -59,18 +72,22 @@ def get_tasks(
         return tasks
 
     except SQLAlchemyError:
+        db.rollback()
         database_exception()
 
 
-# ---------------- GET TASK BY ID ---------------- #
-
-@router.get("/{task_id}", response_model=schemas.TaskResponse)
+# GET TASK BY ID
+@router.get(
+    "/{task_id}",
+    response_model=schemas.TaskResponse
+)
 def get_task(
     task_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
+
         task = db.query(Task).filter(
             Task.id == task_id,
             Task.owner_id == current_user.id
@@ -85,19 +102,23 @@ def get_task(
         return task
 
     except SQLAlchemyError:
+        db.rollback()
         database_exception()
 
 
-# ---------------- UPDATE TASK ---------------- #
-
-@router.put("/{task_id}", response_model=schemas.TaskResponse)
+# UPDATE TASK
+@router.put(
+    "/{task_id}",
+    response_model=schemas.TaskResponse
+)
 def update_task(
     task_id: int,
     updated_task: schemas.TaskCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
+
         task = db.query(Task).filter(
             Task.id == task_id,
             Task.owner_id == current_user.id
@@ -123,15 +144,18 @@ def update_task(
         database_exception()
 
 
-# ---------------- DELETE TASK ---------------- #
-
-@router.delete("/{task_id}", status_code=status.HTTP_200_OK)
+# DELETE TASK
+@router.delete(
+    "/{task_id}",
+    status_code=status.HTTP_200_OK
+)
 def delete_task(
     task_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = db_dependency,
+    current_user: User = user_dependency
 ):
     try:
+
         task = db.query(Task).filter(
             Task.id == task_id,
             Task.owner_id == current_user.id
