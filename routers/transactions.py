@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,9 +13,9 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
-# Reusable dependencies
-db_dependency = Depends(get_db)
-user_dependency = Depends(get_current_user)
+
+DbSession = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 router = APIRouter(
@@ -30,8 +32,8 @@ router = APIRouter(
 )
 def create_transaction(
     transaction: schemas.TransactionCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -108,8 +110,8 @@ def create_transaction(
     response_model=list[schemas.TransactionResponse]
 )
 def get_transactions(
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 

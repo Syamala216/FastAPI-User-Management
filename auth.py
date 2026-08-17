@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -12,6 +13,12 @@ from hashing import Hash
 from oauth2 import create_access_token
 from exceptions import database_exception
 
+
+# Reusable dependency types
+DbSession = Annotated[Session, Depends(get_db)]
+OAuth2Form = Annotated[OAuth2PasswordRequestForm, Depends()]
+
+
 router = APIRouter(
     tags=["Authentication"]
 )
@@ -19,10 +26,13 @@ router = APIRouter(
 
 # REGISTER
 
-@router.post("/register", response_model=schemas.UserResponse)
+@router.post(
+    "/register",
+    response_model=schemas.UserResponse
+)
 def register(
     user: schemas.UserCreate,
-    db: Session = Depends(get_db)
+    db: DbSession
 ):
     try:
 
@@ -72,12 +82,16 @@ def register(
 
 # LOGIN
 
-@router.post("/login", response_model=schemas.Token)
+@router.post(
+    "/login",
+    response_model=schemas.Token
+)
 def login(
-    request: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    request: OAuth2Form,
+    db: DbSession
 ):
     try:
+
         # Find user by email
         db_user = db.query(User).filter(
             User.email == request.username
@@ -90,7 +104,10 @@ def login(
             )
 
         # Verify password
-        if not Hash.verify(request.password, db_user.password):
+        if not Hash.verify(
+            request.password,
+            db_user.password
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid Password"
@@ -109,7 +126,9 @@ def login(
 
     except SQLAlchemyError as e:
         db.rollback()
+
         print("LOGIN DATABASE ERROR:", e)
+
         raise HTTPException(
             status_code=500,
             detail=str(e)

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Annotated, Optional
 
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
@@ -9,16 +9,25 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
 
+
 # Secret key (change this in production)
 SECRET_KEY = "mysecretkey123456789"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+# Reusable dependency types
+Token = Annotated[str, Depends(oauth2_scheme)]
+DbSession = Annotated[Session, Depends(get_db)]
 
+
+def create_access_token(
+    data: dict,
+    expires_delta: Optional[timedelta] = None
+):
     to_encode = data.copy()
 
     if expires_delta:
@@ -66,8 +75,8 @@ def verify_access_token(token: str):
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
+    token: Token,
+    db: DbSession
 ):
 
     user_id = verify_access_token(token)

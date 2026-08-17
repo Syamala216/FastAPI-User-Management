@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -7,8 +9,8 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
-
-user_dependency = Depends(get_current_user)
+# Reusable dependency type
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 router = APIRouter(
@@ -22,7 +24,7 @@ router = APIRouter(
     response_model=schemas.UserResponse
 )
 def get_me(
-    current_user: User = user_dependency
+    current_user: CurrentUser
 ):
     try:
         return current_user

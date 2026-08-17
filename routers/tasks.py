@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,9 +12,9 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
-# Reusable dependencies
-db_dependency = Depends(get_db)
-user_dependency = Depends(get_current_user)
+
+DbSession = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 router = APIRouter(
@@ -31,8 +31,8 @@ router = APIRouter(
 )
 def create_task(
     task: schemas.TaskCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -60,8 +60,8 @@ def create_task(
     response_model=List[schemas.TaskResponse]
 )
 def get_tasks(
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -83,8 +83,8 @@ def get_tasks(
 )
 def get_task(
     task_id: int,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -114,8 +114,8 @@ def get_task(
 def update_task(
     task_id: int,
     updated_task: schemas.TaskCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -151,8 +151,8 @@ def update_task(
 )
 def delete_task(
     task_id: int,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 

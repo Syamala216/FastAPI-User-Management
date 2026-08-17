@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,9 +13,9 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
-
-db_dependency = Depends(get_db)
-user_dependency = Depends(get_current_user)
+# Reusable dependency types
+DbSession = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 router = APIRouter(
@@ -30,8 +32,8 @@ router = APIRouter(
 )
 def add_to_cart(
     cart: schemas.CartCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -122,8 +124,8 @@ def add_to_cart(
     response_model=list[schemas.CartResponse]
 )
 def get_cart(
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -164,8 +166,8 @@ def get_cart(
 )
 def remove_from_cart(
     cart_id: int,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 

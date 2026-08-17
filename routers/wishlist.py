@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,9 +13,9 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
-
-db_dependency = Depends(get_db)
-user_dependency = Depends(get_current_user)
+# Reusable dependency types
+DbSession = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 router = APIRouter(
@@ -30,8 +32,8 @@ router = APIRouter(
 )
 def add_to_wishlist(
     wishlist: schemas.WishlistCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -99,8 +101,8 @@ def add_to_wishlist(
     response_model=list[schemas.WishlistResponse]
 )
 def get_wishlist(
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 
@@ -147,8 +149,8 @@ def get_wishlist(
 )
 def remove_from_wishlist(
     product_id: int,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
 

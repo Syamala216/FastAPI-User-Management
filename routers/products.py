@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -13,8 +13,8 @@ from exceptions import database_exception
 
 
 
-db_dependency = Depends(get_db)
-user_dependency = Depends(get_current_user)
+DbSession = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 router = APIRouter(
@@ -31,8 +31,8 @@ router = APIRouter(
 )
 def create_product(
     product: schemas.ProductCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
         new_product = Product(
@@ -62,8 +62,8 @@ def create_product(
     response_model=List[schemas.ProductResponse]
 )
 def get_products(
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
         products = db.query(Product).all()
@@ -82,8 +82,8 @@ def get_products(
 )
 def get_product(
     product_id: int,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
         product = db.query(Product).filter(
@@ -111,8 +111,8 @@ def get_product(
 def update_product(
     product_id: int,
     updated_product: schemas.ProductCreate,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
         product = db.query(Product).filter(
@@ -155,8 +155,8 @@ def update_product(
 )
 def delete_product(
     product_id: int,
-    db: Session = db_dependency,
-    current_user: User = user_dependency
+    db: DbSession,
+    current_user: CurrentUser
 ):
     try:
         product = db.query(Product).filter(
