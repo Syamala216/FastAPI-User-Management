@@ -10,7 +10,7 @@ from database import get_db
 from models.user import User
 
 
-# Secret key (change this in production)
+# Secret key (change in production)
 SECRET_KEY = "mysecretkey123456789"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -20,8 +20,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 # Reusable dependency types
-Token = Annotated[str, Depends(oauth2_scheme)]
-DbSession = Annotated[Session, Depends(get_db)]
+Token = Annotated[
+    str,
+    Depends(oauth2_scheme)
+]
+
+DbSession = Annotated[
+    Session,
+    Depends(get_db)
+]
 
 
 def create_access_token(
@@ -78,7 +85,6 @@ def get_current_user(
     token: Token,
     db: DbSession
 ):
-
     user_id = verify_access_token(token)
 
     user = db.query(User).filter(
@@ -101,7 +107,7 @@ CurrentUser = Annotated[
 ]
 
 
-# Admin dependency
+# Admin authorization
 def get_current_admin(
     current_user: CurrentUser
 ):
