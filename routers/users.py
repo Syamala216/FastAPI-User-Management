@@ -9,7 +9,7 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
-# Reusable dependency type
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 

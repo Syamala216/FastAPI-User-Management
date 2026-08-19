@@ -66,7 +66,11 @@ def get_products(
     current_user: CurrentUser
 ):
     try:
-        products = db.query(Product).all()
+        products = (
+            db.query(Product)
+            .order_by(Product.id)
+            .all()
+        )
 
         return products
 

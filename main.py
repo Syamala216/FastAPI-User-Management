@@ -10,6 +10,7 @@ from routers.products import router as product_router
 from routers.wishlist import router as wishlist_router
 from routers.cart import router as cart_router
 from routers.transactions import router as transaction_router
+from routers.admin import router as admin_router
 
 
 app = FastAPI(
@@ -36,6 +37,7 @@ app.include_router(product_router)
 app.include_router(wishlist_router)
 app.include_router(cart_router)
 app.include_router(transaction_router)
+app.include_router(admin_router)
 
 
 @app.get("/")
