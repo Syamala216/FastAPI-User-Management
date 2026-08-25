@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Query
 from sqlalchemy.exc import SQLAlchemyError
 
+from logging_config import info_logger
+
 import schemas
 from models.user import User
 from models.product import Product
@@ -36,11 +38,19 @@ def get_all_users(
             .all()
         )
 
+        # Log successful admin action
+        info_logger.info(
+            f"Admin ID: {current_admin.id} - "
+            f"Viewed users - "
+            f"Page: {page} - "
+            f"Limit: {limit}"
+        )
+
         return users
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # GET ALL PRODUCTS
@@ -65,8 +75,16 @@ def get_all_products(
             .all()
         )
 
+        # Log successful admin action
+        info_logger.info(
+            f"Admin ID: {current_admin.id} - "
+            f"Viewed products - "
+            f"Page: {page} - "
+            f"Limit: {limit}"
+        )
+
         return products
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)

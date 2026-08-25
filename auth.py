@@ -6,6 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from logging_config import info_logger, warning_logger
+
 from models.user import User
 import schemas
 from database import get_db
@@ -14,9 +16,16 @@ from oauth2 import create_access_token
 from exceptions import database_exception
 
 
-# Reusable dependency types
-DbSession = Annotated[Session, Depends(get_db)]
-OAuth2Form = Annotated[OAuth2PasswordRequestForm, Depends()]
+
+DbSession = Annotated[
+    Session,
+    Depends(get_db)
+]
+
+OAuth2Form = Annotated[
+    OAuth2PasswordRequestForm,
+    Depends()
+]
 
 
 router = APIRouter(
@@ -25,7 +34,6 @@ router = APIRouter(
 
 
 # REGISTER
-
 @router.post(
     "/register",
     response_model=schemas.UserResponse
@@ -42,6 +50,12 @@ def register(
         ).first()
 
         if existing_username:
+            warning_logger.warning(
+                f"Registration failed - "
+                f"Username already exists - "
+                f"Username: {user.username}"
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already exists"
@@ -53,6 +67,12 @@ def register(
         ).first()
 
         if existing_email:
+            warning_logger.warning(
+                f"Registration failed - "
+                f"Email already exists - "
+                f"Email: {user.email}"
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already exists"
@@ -73,15 +93,21 @@ def register(
         db.commit()
         db.refresh(new_user)
 
+        # Log successful registration
+        info_logger.info(
+            f"User ID: {new_user.id} - "
+            f"User registered successfully - "
+            f"Username: {new_user.username}"
+        )
+
         return new_user
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # LOGIN
-
 @router.post(
     "/login",
     response_model=schemas.Token
@@ -98,6 +124,12 @@ def login(
         ).first()
 
         if not db_user:
+            warning_logger.warning(
+                f"Login failed - "
+                f"Invalid email - "
+                f"Email: {request.username}"
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Invalid Email"
@@ -108,6 +140,12 @@ def login(
             request.password,
             db_user.password
         ):
+            warning_logger.warning(
+                f"Login failed - "
+                f"Invalid password - "
+                f"User ID: {db_user.id}"
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid Password"
@@ -119,6 +157,12 @@ def login(
             expires_delta=timedelta(minutes=30)
         )
 
+        # Log successful login
+        info_logger.info(
+            f"User ID: {db_user.id} - "
+            f"Login successful"
+        )
+
         return {
             "access_token": access_token,
             "token_type": "bearer"
@@ -126,10 +170,4 @@ def login(
 
     except SQLAlchemyError as e:
         db.rollback()
-
-        print("LOGIN DATABASE ERROR:", e)
-
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        database_exception(e)

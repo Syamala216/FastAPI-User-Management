@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from logging_config import info_logger
+
 import schemas
 from database import get_db
 from models.user import User
@@ -13,9 +15,15 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
+DbSession = Annotated[
+    Session,
+    Depends(get_db)
+]
 
-DbSession = Annotated[Session, Depends(get_db)]
-CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentUser = Annotated[
+    User,
+    Depends(get_current_user)
+]
 
 
 router = APIRouter(
@@ -36,7 +44,6 @@ def add_to_wishlist(
     current_user: CurrentUser
 ):
     try:
-
         # Check product exists
         product = db.query(Product).filter(
             Product.id == wishlist.product_id
@@ -77,6 +84,13 @@ def add_to_wishlist(
         db.commit()
         db.refresh(new_wishlist)
 
+        # Log successful wishlist addition
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Added product to wishlist - "
+            f"Product ID: {product.id}"
+        )
+
         return {
             "id": new_wishlist.id,
             "user_id": new_wishlist.user_id,
@@ -90,9 +104,9 @@ def add_to_wishlist(
             }
         }
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # GET WISHLIST
@@ -105,7 +119,6 @@ def get_wishlist(
     current_user: CurrentUser
 ):
     try:
-
         wishlist_items = (
             db.query(Wishlist, Product)
             .join(
@@ -121,7 +134,6 @@ def get_wishlist(
         result = []
 
         for wishlist, product in wishlist_items:
-
             result.append({
                 "id": wishlist.id,
                 "user_id": wishlist.user_id,
@@ -137,9 +149,9 @@ def get_wishlist(
 
         return result
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # REMOVE FROM WISHLIST
@@ -153,7 +165,6 @@ def remove_from_wishlist(
     current_user: CurrentUser
 ):
     try:
-
         wishlist = db.query(Wishlist).filter(
             Wishlist.user_id == current_user.id,
             Wishlist.product_id == product_id
@@ -168,10 +179,17 @@ def remove_from_wishlist(
         db.delete(wishlist)
         db.commit()
 
+        # Log successful wishlist removal
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Removed product from wishlist - "
+            f"Product ID: {product_id}"
+        )
+
         return {
             "message": "Product removed from wishlist successfully"
         }
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)

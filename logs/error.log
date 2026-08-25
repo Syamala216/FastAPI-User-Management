@@ -1,0 +1,2 @@
+2026-08-24 14:03:56,816 - ERROR - error_logger - User ID: None - GET /test-error Error: This is a test error Time: 0.0070s
+2026-08-24 14:03:56,817 - ERROR - error_logger - GET /test-error GENERAL ERROR: This is a test error

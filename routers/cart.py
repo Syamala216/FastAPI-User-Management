@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from logging_config import info_logger
+
 import schemas
 from database import get_db
 from models.user import User
@@ -11,7 +13,6 @@ from models.product import Product
 from models.cart import Cart
 from oauth2 import get_current_user
 from exceptions import database_exception
-
 
 
 DbSession = Annotated[Session, Depends(get_db)]
@@ -37,7 +38,6 @@ def add_to_cart(
 ):
     try:
 
-        # Find product
         product = db.query(Product).filter(
             Product.id == cart.product_id
         ).first()
@@ -48,28 +48,24 @@ def add_to_cart(
                 detail="Product not found"
             )
 
-        # User cannot add own product
         if product.owner_id == current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="You cannot add your own product to cart"
             )
 
-        # Quantity validation
         if cart.quantity <= 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Quantity must be greater than 0"
             )
 
-        # Stock validation
         if cart.quantity > product.stock:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Requested quantity is not available"
             )
 
-        # Check existing cart item
         existing = db.query(Cart).filter(
             Cart.user_id == current_user.id,
             Cart.product_id == cart.product_id
@@ -88,6 +84,14 @@ def add_to_cart(
             db.commit()
             db.refresh(existing)
 
+
+            info_logger.info(
+                f"User ID: {current_user.id} - "
+                f"Updated cart quantity - "
+                f"Product ID: {product.id} - "
+                f"Quantity: {existing.quantity}"
+            )
+
             return {
                 "id": existing.id,
                 "user_id": existing.user_id,
@@ -95,7 +99,7 @@ def add_to_cart(
                 "quantity": existing.quantity
             }
 
-        # Create new cart item
+
         new_cart = Cart(
             user_id=current_user.id,
             product_id=cart.product_id,
@@ -106,6 +110,14 @@ def add_to_cart(
         db.commit()
         db.refresh(new_cart)
 
+        # Log new cart item
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Added product to cart - "
+            f"Product ID: {product.id} - "
+            f"Quantity: {new_cart.quantity}"
+        )
+
         return {
             "id": new_cart.id,
             "user_id": new_cart.user_id,
@@ -113,9 +125,9 @@ def add_to_cart(
             "quantity": new_cart.quantity
         }
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # GET CART
@@ -137,7 +149,6 @@ def get_cart(
 
         for item in cart_items:
 
-            # Get product separately using product_id
             product = db.query(Product).filter(
                 Product.id == item.product_id
             ).first()
@@ -154,9 +165,9 @@ def get_cart(
 
         return result
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # DELETE CART ITEM
@@ -182,9 +193,19 @@ def remove_from_cart(
                 detail="Cart item not found"
             )
 
+        product_id = cart_item.product_id
+
         db.delete(cart_item)
         db.commit()
 
-    except SQLAlchemyError:
+        # Log cart item removal
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Removed product from cart - "
+            f"Product ID: {product_id} - "
+            f"Cart ID: {cart_id}"
+        )
+
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)

@@ -1,0 +1,62 @@
+2026-08-22 16:31:22,947 - INFO - info_logger - GET / Status: 200 Time: 0.0699s
+2026-08-22 16:31:22,986 - INFO - info_logger - GET /favicon.ico Status: 404 Time: 0.0013s
+2026-08-22 16:31:26,101 - INFO - info_logger - GET /docs Status: 200 Time: 0.0007s
+2026-08-22 16:31:26,493 - INFO - info_logger - GET /openapi.json Status: 200 Time: 0.1598s
+2026-08-22 16:31:28,340 - INFO - info_logger - GET /docs Status: 200 Time: 0.0007s
+2026-08-22 16:31:28,497 - INFO - info_logger - GET /openapi.json Status: 200 Time: 0.0013s
+2026-08-22 16:31:29,569 - INFO - info_logger - GET /docs Status: 200 Time: 0.0007s
+2026-08-22 16:31:29,641 - INFO - info_logger - GET /openapi.json Status: 200 Time: 0.0015s
+2026-08-22 16:33:02,217 - INFO - info_logger - GET /products/ Status: 401 Time: 0.0167s
+2026-08-22 16:33:12,282 - INFO - info_logger - GET /products/ Status: 401 Time: 0.0032s
+2026-08-22 16:35:25,846 - INFO - info_logger - POST /login Status: 200 Time: 0.9609s
+2026-08-22 16:35:34,670 - INFO - info_logger - GET /products/ Status: 200 Time: 0.0502s
+2026-08-22 16:49:26,176 - INFO - info_logger - GET / Status: 200 Time: 0.0007s
+2026-08-22 16:49:30,191 - INFO - info_logger - GET /docs Status: 200 Time: 0.0004s
+2026-08-22 16:49:30,255 - INFO - info_logger - GET /openapi.json Status: 200 Time: 0.0009s
+2026-08-22 16:49:36,356 - INFO - info_logger - GET /wishlist/ Status: 401 Time: 0.0047s
+2026-08-22 17:03:52,941 - INFO - info_logger - GET /docs Status: 200 Time: 0.0003s
+2026-08-22 17:03:52,993 - INFO - info_logger - GET /openapi.json Status: 200 Time: 0.0008s
+2026-08-22 17:04:05,277 - INFO - info_logger - POST /login Status: 422 Time: 0.0022s
+2026-08-22 17:04:13,214 - INFO - info_logger - POST /login Status: 200 Time: 0.3298s
+2026-08-22 17:04:54,824 - INFO - info_logger - POST /products/ Status: 201 Time: 0.0237s
+2026-08-23 14:27:23,842 - INFO - info_logger - GET / Status: 200 Time: 0.0583s
+2026-08-23 14:27:23,871 - INFO - info_logger - GET /favicon.ico Status: 404 Time: 0.0008s
+2026-08-23 14:27:26,540 - INFO - info_logger - GET /docs Status: 200 Time: 0.0004s
+2026-08-23 14:27:26,802 - INFO - info_logger - GET /openapi.json Status: 200 Time: 0.1449s
+2026-08-23 14:27:37,513 - INFO - info_logger - GET /tasks/ Status: 401 Time: 0.0235s
+2026-08-24 11:57:34,825 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0491s
+2026-08-24 11:57:34,861 - INFO - info_logger - User ID: None - GET /favicon.ico Status: 404 Time: 0.0011s
+2026-08-24 11:57:38,113 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0012s
+2026-08-24 11:57:39,931 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.3042s
+2026-08-24 11:57:42,799 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0009s
+2026-08-24 11:57:42,869 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.0010s
+2026-08-24 11:58:08,177 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.7269s
+2026-08-24 11:58:22,791 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.5216s
+2026-08-24 12:05:38,114 - INFO - info_logger - User ID: 2 - GET /products/ Status: 200 Time: 0.0576s
+2026-08-24 13:54:23,570 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0221s
+2026-08-24 13:54:26,463 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0010s
+2026-08-24 13:54:26,762 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1039s
+2026-08-24 14:01:39,458 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0003s
+2026-08-24 14:01:39,631 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1278s
+2026-08-24 14:17:10,108 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0255s
+2026-08-24 14:17:15,850 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0003s
+2026-08-24 14:17:15,975 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.0700s
+2026-08-24 14:17:29,244 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.5871s
+2026-08-24 14:18:05,040 - INFO - info_logger - User ID: 2 - Created product - Product ID: 17
+2026-08-24 14:18:05,044 - INFO - info_logger - User ID: 2 - POST /products/ Status: 201 Time: 0.0213s
+2026-08-24 14:22:21,759 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0003s
+2026-08-24 14:22:21,939 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1318s
+2026-08-24 14:22:44,265 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.5846s
+2026-08-24 14:22:51,922 - INFO - info_logger - User ID: 2 - Updated product - Product ID: 17
+2026-08-24 14:22:51,923 - INFO - info_logger - User ID: 2 - PUT /products/17 Status: 200 Time: 0.0247s
+2026-08-24 14:23:27,279 - INFO - info_logger - User ID: 2 - Updated product - Product ID: 17
+2026-08-24 14:23:27,280 - INFO - info_logger - User ID: 2 - PUT /products/17 Status: 200 Time: 0.0130s
+2026-08-24 14:23:34,806 - INFO - info_logger - User ID: 2 - GET /products/ Status: 200 Time: 0.0063s
+2026-08-24 14:27:10,312 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0018s
+2026-08-24 14:27:10,585 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.2079s
+2026-08-24 14:27:26,924 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.8391s
+2026-08-24 14:27:52,356 - INFO - info_logger - User ID: 2 - Deleted product - Product ID: 17
+2026-08-24 14:27:52,357 - INFO - info_logger - User ID: 2 - DELETE /products/17 Status: 204 Time: 0.0864s
+2026-08-25 17:26:39,168 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0652s
+2026-08-25 17:26:40,900 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0009s
+2026-08-25 17:26:41,190 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1612s

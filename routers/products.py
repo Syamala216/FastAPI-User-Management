@@ -1,3 +1,5 @@
+from logging_config import info_logger
+
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -10,7 +12,6 @@ from models.user import User
 from oauth2 import get_current_user
 import schemas
 from exceptions import database_exception
-
 
 
 DbSession = Annotated[Session, Depends(get_db)]
@@ -47,6 +48,13 @@ def create_product(
         db.add(new_product)
         db.commit()
         db.refresh(new_product)
+
+        # Log successful product creation
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Created product - "
+            f"Product ID: {new_product.id}"
+        )
 
         return new_product
 
@@ -144,6 +152,11 @@ def update_product(
 
         db.commit()
         db.refresh(product)
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Updated product - "
+            f"Product ID: {product.id}"
+        )
 
         return product
 
@@ -182,6 +195,11 @@ def delete_product(
 
         db.delete(product)
         db.commit()
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Deleted product - "
+            f"Product ID: {product.id}"
+        )
 
     except SQLAlchemyError:
         db.rollback()

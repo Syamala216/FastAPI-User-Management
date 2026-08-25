@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from logging_config import info_logger
+
 import schemas
 from database import get_db
 from models.user import User
@@ -13,9 +15,15 @@ from oauth2 import get_current_user
 from exceptions import database_exception
 
 
+DbSession = Annotated[
+    Session,
+    Depends(get_db)
+]
 
-DbSession = Annotated[Session, Depends(get_db)]
-CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentUser = Annotated[
+    User,
+    Depends(get_current_user)
+]
 
 
 router = APIRouter(
@@ -36,7 +44,6 @@ def create_transaction(
     current_user: CurrentUser
 ):
     try:
-
         # Check product
         product = db.query(Product).filter(
             Product.id == transaction.product_id
@@ -97,11 +104,22 @@ def create_transaction(
         db.commit()
         db.refresh(new_transaction)
 
+        # Log successful transaction
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Created transaction - "
+            f"Transaction ID: {new_transaction.id} - "
+            f"Product ID: {product.id} - "
+            f"Quantity: {transaction.quantity} - "
+            f"Payment: {transaction.payment_status} - "
+            f"Total: {total_amount}"
+        )
+
         return new_transaction
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # GET TRANSACTIONS
@@ -114,13 +132,12 @@ def get_transactions(
     current_user: CurrentUser
 ):
     try:
-
         transactions = db.query(Transaction).filter(
             Transaction.user_id == current_user.id
         ).all()
 
         return transactions
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)

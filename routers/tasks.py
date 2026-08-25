@@ -4,13 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from logging_config import info_logger
+
 from models.user import User
 from models.task import Task
 import schemas
 from database import get_db
 from oauth2 import get_current_user
 from exceptions import database_exception
-
 
 
 DbSession = Annotated[Session, Depends(get_db)]
@@ -35,7 +36,6 @@ def create_task(
     current_user: CurrentUser
 ):
     try:
-
         new_task = Task(
             title=task.title,
             description=task.description,
@@ -47,11 +47,17 @@ def create_task(
         db.commit()
         db.refresh(new_task)
 
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Created task - "
+            f"Task ID: {new_task.id}"
+        )
+
         return new_task
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # GET ALL TASKS
@@ -64,16 +70,15 @@ def get_tasks(
     current_user: CurrentUser
 ):
     try:
-
         tasks = db.query(Task).filter(
             Task.owner_id == current_user.id
         ).all()
 
         return tasks
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # GET TASK BY ID
@@ -87,7 +92,6 @@ def get_task(
     current_user: CurrentUser
 ):
     try:
-
         task = db.query(Task).filter(
             Task.id == task_id,
             Task.owner_id == current_user.id
@@ -101,9 +105,9 @@ def get_task(
 
         return task
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # UPDATE TASK
@@ -118,7 +122,6 @@ def update_task(
     current_user: CurrentUser
 ):
     try:
-
         task = db.query(Task).filter(
             Task.id == task_id,
             Task.owner_id == current_user.id
@@ -137,11 +140,17 @@ def update_task(
         db.commit()
         db.refresh(task)
 
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Updated task - "
+            f"Task ID: {task.id}"
+        )
+
         return task
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)
 
 
 # DELETE TASK
@@ -155,7 +164,6 @@ def delete_task(
     current_user: CurrentUser
 ):
     try:
-
         task = db.query(Task).filter(
             Task.id == task_id,
             Task.owner_id == current_user.id
@@ -170,10 +178,16 @@ def delete_task(
         db.delete(task)
         db.commit()
 
+        info_logger.info(
+            f"User ID: {current_user.id} - "
+            f"Deleted task - "
+            f"Task ID: {task.id}"
+        )
+
         return {
             "message": "Task deleted successfully"
         }
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        database_exception()
+        database_exception(e)

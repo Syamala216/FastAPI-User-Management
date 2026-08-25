@@ -1,0 +1,4 @@
+2026-08-24 13:54:34,210 - WARNING - warning_logger - User ID: None - GET /products/ Status: 401 Time: 0.0083s
+2026-08-24 14:01:44,346 - WARNING - warning_logger - User ID: None - GET /products/ Status: 401 Time: 0.0041s
+2026-08-24 14:27:37,096 - WARNING - warning_logger - User ID: 2 - DELETE /tasks/17 Status: 404 Time: 0.0660s
+2026-08-25 17:26:50,708 - WARNING - warning_logger - User ID: None - GET /wishlist/ Status: 401 Time: 0.0064s
