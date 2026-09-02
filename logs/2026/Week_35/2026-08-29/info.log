@@ -12,3 +12,14 @@
 2026-08-29 11:51:42,685 - INFO - info_logger - User ID: 2 - Updated task - Task ID: 2
 2026-08-29 11:51:42,687 - INFO - info_logger - User ID: 2 - PUT /tasks/2 Status: 200 Time: 0.0839s
 2026-08-29 11:51:50,862 - INFO - info_logger - User ID: 2 - GET /tasks/ Status: 200 Time: 0.0074s
+2026-08-29 18:59:21,210 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0406s
+2026-08-29 18:59:25,659 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0008s
+2026-08-29 18:59:26,010 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1702s
+2026-08-29 19:12:13,578 - INFO - info_logger - User ID: 2 - Login successful
+2026-08-29 19:12:13,582 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.6852s
+2026-08-29 19:12:19,506 - INFO - info_logger - User ID: 2 - GET /tasks/ Status: 200 Time: 0.1689s
+2026-08-29 19:38:36,855 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0005s
+2026-08-29 19:38:37,103 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1575s
+2026-08-29 20:14:02,713 - INFO - info_logger - User ID: 2 - Login successful
+2026-08-29 20:14:02,716 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.5895s
+2026-08-29 20:14:13,004 - INFO - info_logger - User ID: 2 - GET /tasks/ Status: 200 Time: 0.0535s

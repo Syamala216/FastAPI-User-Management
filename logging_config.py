@@ -104,8 +104,6 @@ if not warning_logger.handlers:
 
 
 
-# --------------------------------------------------
-
 error_logger = logging.getLogger("error_logger")
 error_logger.setLevel(logging.ERROR)
 error_logger.propagate = False

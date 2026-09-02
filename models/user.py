@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String,Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -14,3 +14,6 @@ class User(Base):
     tasks = relationship("Task", back_populates="owner")
 
     is_admin = Column(Boolean, default=False)
+    otp = Column(String, nullable=True)
+
+    otp_expiry = Column(DateTime, nullable=True)

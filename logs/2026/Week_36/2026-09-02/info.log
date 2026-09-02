@@ -1,0 +1,29 @@
+2026-09-02 11:43:18,148 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0632s
+2026-09-02 11:43:22,839 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0004s
+2026-09-02 11:43:22,997 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.0977s
+2026-09-02 11:43:53,717 - INFO - info_logger - User ID: 5 - Forgot password OTP sent
+2026-09-02 11:43:53,718 - INFO - info_logger - User ID: None - POST /forgot-password Status: 200 Time: 5.3803s
+2026-09-02 11:44:33,683 - INFO - info_logger - User ID: 5 - OTP verified successfully
+2026-09-02 11:44:33,684 - INFO - info_logger - User ID: None - POST /verify-otp Status: 200 Time: 0.0068s
+2026-09-02 11:45:11,662 - INFO - info_logger - User ID: 5 - Password reset successfully
+2026-09-02 11:45:11,664 - INFO - info_logger - User ID: None - POST /reset-password Status: 200 Time: 0.3205s
+2026-09-02 11:46:36,714 - INFO - info_logger - User ID: 5 - Login successful
+2026-09-02 11:46:36,720 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.3969s
+2026-09-02 11:52:01,636 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0005s
+2026-09-02 11:52:01,823 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.1426s
+2026-09-02 11:52:21,920 - INFO - info_logger - User ID: 5 - Forgot password OTP sent
+2026-09-02 11:52:21,921 - INFO - info_logger - User ID: None - POST /forgot-password Status: 200 Time: 4.8835s
+2026-09-02 11:53:40,013 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0014s
+2026-09-02 11:53:43,340 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0005s
+2026-09-02 11:53:43,396 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.0011s
+2026-09-02 11:54:40,484 - INFO - info_logger - User ID: None - GET / Status: 200 Time: 0.0378s
+2026-09-02 11:54:44,284 - INFO - info_logger - User ID: None - GET /docs Status: 200 Time: 0.0005s
+2026-09-02 11:54:44,431 - INFO - info_logger - User ID: None - GET /openapi.json Status: 200 Time: 0.0921s
+2026-09-02 11:55:08,523 - INFO - info_logger - User ID: 5 - Forgot password OTP sent
+2026-09-02 11:55:08,524 - INFO - info_logger - User ID: None - POST /forgot-password Status: 200 Time: 7.1377s
+2026-09-02 11:55:48,714 - INFO - info_logger - User ID: 5 - OTP verified successfully
+2026-09-02 11:55:48,715 - INFO - info_logger - User ID: None - POST /verify-otp Status: 200 Time: 0.0046s
+2026-09-02 11:57:03,557 - INFO - info_logger - User ID: 5 - Password reset successfully
+2026-09-02 11:57:03,557 - INFO - info_logger - User ID: None - POST /reset-password Status: 200 Time: 0.3522s
+2026-09-02 11:57:23,223 - INFO - info_logger - User ID: 5 - Login successful
+2026-09-02 11:57:23,224 - INFO - info_logger - User ID: None - POST /login Status: 200 Time: 0.3021s

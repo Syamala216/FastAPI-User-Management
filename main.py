@@ -117,6 +117,3 @@ def home():
     return {
         "message": "Welcome to Task Management API"
     }
-"""@app.get("/test-error")
-def test_error():
-    raise Exception("This is a test error")"""
